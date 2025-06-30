@@ -1,0 +1,31 @@
+---
+title: "project_proposal"
+author: "Vaughn Hendrix"
+date: "2025-06-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# topic title
+
+My project is
+
+# Team members
+
+The team consists of: Vaughn Hendrix
+
+# Data
+
+My first data set can be found at <https://psl.noaa.gov/data/timeseries/month/>, being the ERRSSTv5 3.4 Index. Its a data set that holds the index values of sea surface temperature anomalies related to the ENSO, a climate pattern in the pacific ocean. The data set has 936 observations with 2 observations: date and index value.
+
+My second data set can be found at <https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/>. The data set contains information about storm appearances, but I will be limiting it to tornadoes. The data set when limited to tornadoes has 1500 observations and 50 variables for one csv file. I will be looking from 2007 to present, with each csv file representing one year.
+
+# Questions
+
+I am interested in the following questions:
+
+-   How does the phase of el nino affect the spatial appearances of tornadoes as well as its frequencies. Is there a certain phase that correlates with more frequent appearances? Does the phase also have a correlation with the lent of the tornado?
+-   Are there certain geographical conditions that relate to more appearances of tornadoes and does it have an effect on the strength of the tornadoes? Does season affect tornadoes as if so, will it have an enhancing effect paired with the current phase?
