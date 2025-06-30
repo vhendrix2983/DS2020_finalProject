@@ -1,0 +1,31 @@
+# ======================
+# R/RStudio
+# ======================
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj  # RStudio project files
+
+# ======================
+# Python
+# ======================
+__pycache__/
+*.py[cod]  # Covers .pyc, .pyo, .pyd
+*.so       # Compiled extensions
+*.egg-info/
+.pytest_cache/
+
+# ======================
+# macOS
+# ======================
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# ======================
+# General
+# ======================
+*.log       # Log files
+*.tmp       # Temporary files
+*.swp       # Vim swap files
