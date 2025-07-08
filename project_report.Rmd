@@ -1,0 +1,66 @@
+---
+title: "Project report"
+author: "Vaughn Hendrix"
+date: "2025-07-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Introduction
+
+The goal of this project is to explore the relationship between El Niño Southern Oscillation (ENSO) and tornado formation in the United States. ENSO is a global weather phenomenon located in the tropical pacific. It is a recurring pattern in which warmer sea surface temperatures and lower pressure shift between the east and west tropical pacific which explains the "oscillation" in its name. Sea surface temperature anomalies are explained in three phases: Neutral which is the average temperature over a given number of years, El Niño phase which is warmer temperatures than average on the east tropical pacific, while La Niña is warmer temperatures in the west tropical pacific. Consequently, ENSO may provide the necessary conditions, such as moist air, updrafts, and wind shear, contributing to tornado formation.
+
+The aim of this analysis is to determine if the phase of ENSO plays a role in determining the frequency of tornadoes through the use of various questions:
+
+-   
+
+# Data
+
+cleaning:
+
+```{r}
+nino3.4 <- read_csv("nina34.anom.csv")
+
+tornadoes_2007 <- read_csv("StormDetails_2007.csv.gz")
+tornadoes_2008 <- read_csv("StormDetails_2008.csv.gz")
+tornadoes_2009 <- read_csv("StormDetails_2009.csv.gz")
+tornadoes_2010 <- read_csv("StormDetails_2010.csv.gz")
+tornadoes_2011 <- read_csv("StormDetails_2011.csv.gz")
+tornadoes_2012 <- read_csv("StormDetails_2012.csv.gz")
+tornadoes_2013 <- read_csv("StormDetails_2013.csv.gz")
+tornadoes_2014 <- read_csv("StormDetails_2014.csv.gz")
+tornadoes_2015 <- read_csv("StormDetails_2015.csv.gz")
+tornadoes_2016 <- read_csv("StormDetails_2016.csv.gz")
+tornadoes_2017 <- read_csv("StormDetails_2017.csv.gz")
+tornadoes_2018 <- read_csv("StormDetails_2018.csv.gz")
+tornadoes_2019 <- read_csv("StormDetails_2019.csv.gz")
+tornadoes_2020 <- read_csv("StormDetails_2020.csv.gz")
+tornadoes_2021 <- read_csv("StormDetails_2021.csv.gz")
+tornadoes_2022 <- read_csv("StormDetails_2022.csv.gz")
+tornadoes_2023 <- read_csv("StormDetails_2023.csv.gz")
+tornadoes_2024 <- read_csv("StormDetails_2024.csv.gz")
+tornadoes_2025 <- read_csv("StormDetails_2025.csv.gz")
+```
+
+```{r}
+colnames(nino3.4)[2] <- "nino3.4"
+
+nino3.4 <- nino3.4 |> 
+  filter(!is.na(Date), 
+         !is.na(`Nino Anom 3.4 Index  using ersstv5 from CPC  missing value -99.99 https://psl.noaa.gov/data/timeseries/month/`),
+         `Nino Anom 3.4 Index  using ersstv5 from CPC  missing value -99.99 https://psl.noaa.gov/data/timeseries/month/` != -9999) |>
+  mutate(Year = year(Date), Month = month(Date), Day = day(Date)) |>
+  filter(Year >= 2007)
+```
+
+# Results
+
+address the following questions
+
+# Conclusion
+
+we did... we found...
