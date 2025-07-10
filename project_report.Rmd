@@ -16,34 +16,38 @@ The goal of this project is to explore the relationship between El Niño Souther
 
 The aim of this analysis is to determine if the phase of ENSO plays a role in determining the frequency of tornadoes through the use of various questions:
 
--   
+-   Is there a trend in the appearance of tornadoes over the years? Does the phase of ENSO play a role in how many tornadoes are forming?
+
+-   Does the phase of ENSO shift the locations of tornadoes?
+
+-   How are the tornadoes themselves affected? Does their strength and size dependent on the phase of ENSO?
 
 # Data
 
 cleaning:
 
 ```{r}
-nino3.4 <- read_csv("nina34.anom.csv")
+nino3.4 <- read_csv("nina34.anom.csv", show_col_types = FALSE)
 
-tornadoes_2007 <- read_csv("StormDetails_2007.csv.gz")
-tornadoes_2008 <- read_csv("StormDetails_2008.csv.gz")
-tornadoes_2009 <- read_csv("StormDetails_2009.csv.gz")
-tornadoes_2010 <- read_csv("StormDetails_2010.csv.gz")
-tornadoes_2011 <- read_csv("StormDetails_2011.csv.gz")
-tornadoes_2012 <- read_csv("StormDetails_2012.csv.gz")
-tornadoes_2013 <- read_csv("StormDetails_2013.csv.gz")
-tornadoes_2014 <- read_csv("StormDetails_2014.csv.gz")
-tornadoes_2015 <- read_csv("StormDetails_2015.csv.gz")
-tornadoes_2016 <- read_csv("StormDetails_2016.csv.gz")
-tornadoes_2017 <- read_csv("StormDetails_2017.csv.gz")
-tornadoes_2018 <- read_csv("StormDetails_2018.csv.gz")
-tornadoes_2019 <- read_csv("StormDetails_2019.csv.gz")
-tornadoes_2020 <- read_csv("StormDetails_2020.csv.gz")
-tornadoes_2021 <- read_csv("StormDetails_2021.csv.gz")
-tornadoes_2022 <- read_csv("StormDetails_2022.csv.gz")
-tornadoes_2023 <- read_csv("StormDetails_2023.csv.gz")
-tornadoes_2024 <- read_csv("StormDetails_2024.csv.gz")
-tornadoes_2025 <- read_csv("StormDetails_2025.csv.gz")
+tornadoes_2007 <- read_csv("StormDetails_2007.csv.gz", show_col_types = FALSE)
+tornadoes_2008 <- read_csv("StormDetails_2008.csv.gz", show_col_types = FALSE)
+tornadoes_2009 <- read_csv("StormDetails_2009.csv.gz", show_col_types = FALSE)
+tornadoes_2010 <- read_csv("StormDetails_2010.csv.gz", show_col_types = FALSE)
+tornadoes_2011 <- read_csv("StormDetails_2011.csv.gz", show_col_types = FALSE)
+tornadoes_2012 <- read_csv("StormDetails_2012.csv.gz", show_col_types = FALSE)
+tornadoes_2013 <- read_csv("StormDetails_2013.csv.gz", show_col_types = FALSE)
+tornadoes_2014 <- read_csv("StormDetails_2014.csv.gz", show_col_types = FALSE)
+tornadoes_2015 <- read_csv("StormDetails_2015.csv.gz", show_col_types = FALSE)
+tornadoes_2016 <- read_csv("StormDetails_2016.csv.gz", show_col_types = FALSE)
+tornadoes_2017 <- read_csv("StormDetails_2017.csv.gz", show_col_types = FALSE)
+tornadoes_2018 <- read_csv("StormDetails_2018.csv.gz", show_col_types = FALSE)
+tornadoes_2019 <- read_csv("StormDetails_2019.csv.gz", show_col_types = FALSE)
+tornadoes_2020 <- read_csv("StormDetails_2020.csv.gz", show_col_types = FALSE)
+tornadoes_2021 <- read_csv("StormDetails_2021.csv.gz", show_col_types = FALSE)
+tornadoes_2022 <- read_csv("StormDetails_2022.csv.gz", show_col_types = FALSE)
+tornadoes_2023 <- read_csv("StormDetails_2023.csv.gz", show_col_types = FALSE)
+tornadoes_2024 <- read_csv("StormDetails_2024.csv.gz", show_col_types = FALSE)
+#removed rows 31,35,36,37,39
 ```
 
 ```{r}
@@ -51,15 +55,191 @@ colnames(nino3.4)[2] <- "nino3.4"
 
 nino3.4 <- nino3.4 |> 
   filter(!is.na(Date), 
-         !is.na(`Nino Anom 3.4 Index  using ersstv5 from CPC  missing value -99.99 https://psl.noaa.gov/data/timeseries/month/`),
-         `Nino Anom 3.4 Index  using ersstv5 from CPC  missing value -99.99 https://psl.noaa.gov/data/timeseries/month/` != -9999) |>
-  mutate(Year = year(Date), Month = month(Date), Day = day(Date)) |>
-  filter(Year >= 2007)
+         !is.na(nino3.4),
+         nino3.4 != -9999) |>
+  mutate(BEGIN_YEARMONTH = as.numeric(format(Date, "%Y%m")), 
+         YEAR = year(Date), 
+         MONTH = month(Date),
+         PHASE = case_when(
+           nino3.4 > 0.5 ~ "El Nino", 
+           nino3.4 >= -0.5 & nino3.4 <= 0.5 ~ "Neutral", 
+           nino3.4 < -0.5 ~ "La Nina", 
+           TRUE ~ "Other" )) |>
+  filter(YEAR >= 2007, YEAR < 2025)
+nino3.4$PHASE <- factor(nino3.4$PHASE)
+```
+
+```{r}
+tornado_obs <- function(data) {
+  data <- data |> filter(EVENT_TYPE == "Tornado")
+  return(data)
+}
+
+filtering_data <- function(data) {
+  data <- data |> 
+    select(-BEGIN_TIME, -END_TIME, -STATE_FIPS, -CZ_FIPS, -CZ_NAME, -WFO, -CZ_TIMEZONE, -DAMAGE_CROPS, -SOURCE, -MAGNITUDE,
+           -MAGNITUDE_TYPE, -FLOOD_CAUSE, -CATEGORY, -TOR_OTHER_WFO, -TOR_OTHER_CZ_STATE, -TOR_OTHER_CZ_FIPS, -TOR_OTHER_CZ_NAME,
+           -EPISODE_NARRATIVE, -EVENT_NARRATIVE, -SOURCE, -DATA_SOURCE)
+   return(data)
+}
+
+F_SCALE <- c("F0" = "EF0", "F1" = "EF1", "F2" = "EF2", "F3" = "EF3", "F4" = "EF4", "F5" = "EF5")
+
+F_SCALE_EQUALIZATION <- function(data) {
+  data <- data |>
+    mutate(TOR_F_SCALE = ifelse(TOR_F_SCALE %in% names(F_SCALE), F_SCALE[TOR_F_SCALE] , TOR_F_SCALE))
+   return(data)
+}
+```
+
+```{r}
+tornadoes_2007 <- tornado_obs(tornadoes_2007)
+tornadoes_2008 <- tornado_obs(tornadoes_2008)
+tornadoes_2009 <- tornado_obs(tornadoes_2009)
+tornadoes_2010 <- tornado_obs(tornadoes_2010)
+tornadoes_2011 <- tornado_obs(tornadoes_2011)
+tornadoes_2012 <- tornado_obs(tornadoes_2012)
+tornadoes_2013 <- tornado_obs(tornadoes_2013)
+tornadoes_2014 <- tornado_obs(tornadoes_2014)
+tornadoes_2015 <- tornado_obs(tornadoes_2015)
+tornadoes_2016 <- tornado_obs(tornadoes_2016)
+tornadoes_2017 <- tornado_obs(tornadoes_2017)
+tornadoes_2018 <- tornado_obs(tornadoes_2018)
+tornadoes_2019 <- tornado_obs(tornadoes_2019)
+tornadoes_2020 <- tornado_obs(tornadoes_2020)
+tornadoes_2021 <- tornado_obs(tornadoes_2021)
+tornadoes_2022 <- tornado_obs(tornadoes_2022)
+tornadoes_2023 <- tornado_obs(tornadoes_2023)
+tornadoes_2024 <- tornado_obs(tornadoes_2024)
+```
+
+```{r}
+tornadoes_2007 <- filtering_data(tornadoes_2007)
+tornadoes_2008 <- filtering_data(tornadoes_2008)
+tornadoes_2009 <- filtering_data(tornadoes_2009)
+tornadoes_2010 <- filtering_data(tornadoes_2010)
+tornadoes_2011 <- filtering_data(tornadoes_2011)
+tornadoes_2012 <- filtering_data(tornadoes_2012)
+tornadoes_2013 <- filtering_data(tornadoes_2013)
+tornadoes_2014 <- filtering_data(tornadoes_2014)
+tornadoes_2015 <- filtering_data(tornadoes_2015)
+tornadoes_2016 <- filtering_data(tornadoes_2016)
+tornadoes_2017 <- filtering_data(tornadoes_2017)
+tornadoes_2018 <- filtering_data(tornadoes_2018)
+tornadoes_2019 <- filtering_data(tornadoes_2019)
+tornadoes_2020 <- filtering_data(tornadoes_2020)
+tornadoes_2021 <- filtering_data(tornadoes_2021)
+tornadoes_2022 <- filtering_data(tornadoes_2022)
+tornadoes_2023 <- filtering_data(tornadoes_2023)
+tornadoes_2024 <- filtering_data(tornadoes_2024)
+```
+
+```{r}
+tornadoes_2007 <- F_SCALE_EQUALIZATION(tornadoes_2007)
+tornadoes_2008 <- F_SCALE_EQUALIZATION(tornadoes_2008)
+tornadoes_2009 <- F_SCALE_EQUALIZATION(tornadoes_2009)
+tornadoes_2010 <- F_SCALE_EQUALIZATION(tornadoes_2010)
+tornadoes_2011 <- F_SCALE_EQUALIZATION(tornadoes_2011)
+tornadoes_2012 <- F_SCALE_EQUALIZATION(tornadoes_2012)
+tornadoes_2013 <- F_SCALE_EQUALIZATION(tornadoes_2013)
+tornadoes_2014 <- F_SCALE_EQUALIZATION(tornadoes_2014)
+tornadoes_2015 <- F_SCALE_EQUALIZATION(tornadoes_2015)
+tornadoes_2016 <- F_SCALE_EQUALIZATION(tornadoes_2016)
+tornadoes_2017 <- F_SCALE_EQUALIZATION(tornadoes_2017)
+tornadoes_2018 <- F_SCALE_EQUALIZATION(tornadoes_2018)
+tornadoes_2019 <- F_SCALE_EQUALIZATION(tornadoes_2019)
+tornadoes_2020 <- F_SCALE_EQUALIZATION(tornadoes_2020)
+tornadoes_2021 <- F_SCALE_EQUALIZATION(tornadoes_2021)
+tornadoes_2022 <- F_SCALE_EQUALIZATION(tornadoes_2022)
+tornadoes_2023 <- F_SCALE_EQUALIZATION(tornadoes_2023)
+tornadoes_2024 <- F_SCALE_EQUALIZATION(tornadoes_2024)
+```
+
+```{r}
+masterData <- bind_rows(tornadoes_2007, tornadoes_2008, tornadoes_2009, tornadoes_2010, tornadoes_2011, tornadoes_2012, tornadoes_2013, tornadoes_2014, tornadoes_2015, tornadoes_2016, tornadoes_2017, tornadoes_2018, tornadoes_2019, tornadoes_2020, tornadoes_2021, tornadoes_2022, tornadoes_2023, tornadoes_2024)
+```
+
+```{r}
+masterData <- masterData |> mutate(MONTH_NAME = factor(MONTH_NAME, levels = month.name))
+masterData <- masterData |> left_join(nino3.4 |> select(nino3.4, BEGIN_YEARMONTH, PHASE), by = "BEGIN_YEARMONTH")
 ```
 
 # Results
 
-address the following questions
+## Is there a trend in the appearance of tornadoes over the years? Does the phase of ENSO play a role in how many tornadoes are forming?
+
+```{r}
+masterData |> ggplot(aes(x = BEGIN_DAY)) + 
+  geom_bar() +
+  facet_wrap(~MONTH_NAME)
+```
+
+```{r}
+masterData |> 
+  group_by(YEAR) |> 
+  summarise(count = n()) |> 
+  ggplot(aes(x = YEAR, y = count)) + 
+  geom_line() + 
+  scale_x_continuous(breaks = unique(masterData$YEAR), minor_breaks = NULL)
+```
+
+```{r}
+nino3.4 |> ggplot(aes(x = Date, y = nino3.4)) + 
+  geom_line() +
+  annotate("rect", xmin = as.Date("2006-12-01"), xmax = as.Date("2025-01-01"), ymin = -Inf, ymax = -0.5,
+           alpha = 0.2, fill = "blue") +
+  annotate("rect", xmin = as.Date("2006-12-01"), xmax = as.Date("2025-01-01"), ymin = 0.5, ymax = Inf,
+           alpha = 0.2, fill = "red")
+
+```
+
+```{r}
+masterData |> 
+  group_by(YEAR, PHASE) |> 
+  summarise(count = n()) |> 
+  ggplot(aes(x = YEAR, y = count, group = PHASE, color = PHASE)) +
+  geom_line() +
+  scale_color_manual(values = c("El Nino" = "red", "La Nina" = "blue", "Neutral" = "gray"))
+```
+
+```{r, fig.width = 14, fig.height = 8}
+masterData |> 
+  mutate(BEGIN_DAY = as.integer(BEGIN_DAY), PHASE = factor(PHASE)) |> 
+  ggplot(aes(x = BEGIN_DAY, fill = PHASE)) + 
+  geom_bar(position = position_dodge(preserve = "single")) +
+  facet_wrap(~MONTH_NAME, ncol = 4)
+```
+
+```{r}
+masterData |> 
+  group_by(YEAR, PHASE) |> 
+  summarise(count = n()) |> 
+  ggplot(aes(x = YEAR, y = count, group = PHASE, color = PHASE)) +
+  geom_line() +
+  scale_color_manual(values = c("El Nino" = "red", "La Nina" = "blue", "Neutral" = "gray"))
+```
+
+## Does the phase of ENSO shift the locations of tornadoes?
+
+```{r}
+states <- map_data("state")
+byState <- masterData |> group_by(STATE, PHASE) |> summarise(count = n(), .groups = "drop")
+byState <- byState |> mutate(region = tolower(STATE)) |> select(-STATE)
+tornado_map <- byState |> left_join(states, by = "region", relationship = "many-to-many")
+```
+
+```{r, fig.width = 20, fig.height = 5}
+tornado_map |>
+  ggplot(aes(x = long, y = lat, fill = count)) +
+  geom_polygon(aes(group = group)) +
+  scale_fill_viridis_c(option = "viridis", na.value = "gray90") +
+  labs(title = "Tornado Concentration by Phase") +
+  facet_wrap(~PHASE)
+```
+
+Hello
+
+## How are the tornadoes themselves affected? Does their strength and size dependent on the phase of ENSO?
 
 # Conclusion
 
