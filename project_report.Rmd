@@ -2,7 +2,7 @@
 title: "Project report"
 author: "Vaughn Hendrix"
 date: "2025-07-04"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -10,9 +10,11 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
 
-# Introduction
+------------------------------------------------------------------------
 
-The goal of this project is to explore the relationship between El Niño Southern Oscillation (ENSO) and tornado formation in the United States. ENSO is a global weather phenomenon located in the tropical pacific. It is a recurring pattern in which warmer sea surface temperatures and lower pressure shift between the east and west tropical pacific which explains the "oscillation" in its name. Sea surface temperature anomalies are explained in three phases: Neutral which is the average temperature over a given number of years, El Niño phase which is warmer temperatures than average on the east tropical pacific, while La Niña is warmer temperatures in the west tropical pacific. Consequently, ENSO may provide the necessary conditions, such as moist air, updrafts, and wind shear, contributing to tornado formation.
+### Introduction
+
+The goal of this project is to explore the relationship between El Niño Southern Oscillation (ENSO) and tornado formation in the United States. ENSO is a global weather phenomenon located in the tropical pacific. It is a recurring pattern in which warmer sea surface temperatures and lower pressure shift between the east and west tropical pacific which explains the "oscillation" in its name. Sea surface temperature anomalies are explained in three phases: Neutral which is the average temperature over a given number of years, El Niño phase which is warmer temperatures than average in the eastern tropical pacific, while La Niña is warmer than average temperatures in the western tropical pacific and colder than average temperatures in the east tropical pacific. Consequently, ENSO may provide the necessary conditions, such as moist air, strong updrafts, and wind shear (the change in wind vector with height), contributing to tornado formation.
 
 The aim of this analysis is to determine if the phase of ENSO plays a role in determining the frequency of tornadoes through the use of various questions:
 
@@ -22,7 +24,9 @@ The aim of this analysis is to determine if the phase of ENSO plays a role in de
 
 -   How are the tornadoes themselves affected? Does their strength and size dependent on the phase of ENSO?
 
-# Data
+------------------------------------------------------------------------
+
+### Data
 
 cleaning:
 
@@ -70,6 +74,10 @@ nino3.4$PHASE <- factor(nino3.4$PHASE)
 ```
 
 ```{r}
+str(masterData)
+```
+
+```{r}
 tornado_obs <- function(data) {
   data <- data |> filter(EVENT_TYPE == "Tornado")
   return(data)
@@ -77,9 +85,7 @@ tornado_obs <- function(data) {
 
 filtering_data <- function(data) {
   data <- data |> 
-    select(-BEGIN_TIME, -END_TIME, -STATE_FIPS, -CZ_FIPS, -CZ_NAME, -WFO, -CZ_TIMEZONE, -DAMAGE_CROPS, -SOURCE, -MAGNITUDE,
-           -MAGNITUDE_TYPE, -FLOOD_CAUSE, -CATEGORY, -TOR_OTHER_WFO, -TOR_OTHER_CZ_STATE, -TOR_OTHER_CZ_FIPS, -TOR_OTHER_CZ_NAME,
-           -EPISODE_NARRATIVE, -EVENT_NARRATIVE, -SOURCE, -DATA_SOURCE)
+    select(BEGIN_YEARMONTH, BEGIN_DAY, STATE, YEAR, MONTH_NAME, EVENT_TYPE, BEGIN_DATE_TIME, END_DATE_TIME, DAMAGE_PROPERTY, TOR_F_SCALE, TOR_LENGTH, TOR_WIDTH, BEGIN_LAT, BEGIN_LON)
    return(data)
 }
 
@@ -160,13 +166,14 @@ masterData <- bind_rows(tornadoes_2007, tornadoes_2008, tornadoes_2009, tornadoe
 ```
 
 ```{r}
-masterData <- masterData |> mutate(MONTH_NAME = factor(MONTH_NAME, levels = month.name))
 masterData <- masterData |> left_join(nino3.4 |> select(nino3.4, BEGIN_YEARMONTH, PHASE), by = "BEGIN_YEARMONTH")
 ```
 
-# Results
+------------------------------------------------------------------------
 
-## Is there a trend in the appearance of tornadoes over the years? Does the phase of ENSO play a role in how many tornadoes are forming?
+### Results
+
+#### Is there a trend in the appearance of tornadoes over the years? Does the phase of ENSO play a role in how many tornadoes are forming?
 
 ```{r}
 masterData |> ggplot(aes(x = BEGIN_DAY)) + 
@@ -237,10 +244,62 @@ tornado_map |>
   facet_wrap(~PHASE)
 ```
 
-Hello
+The following graph is a choropleth map of the United States, where the shade of each state represents the number of tornado observations. Across all three ENSO phases, tornadoes are most commonly observed in the Southern and Central Midwest, where warm, moist air from the Gulf of Mexico meets cold, dry air from Canada, creating an unstable atmosphere favorable for tornado formation.
+
+However, the maps show that ENSO does have an influence on the geographic distribution of tornado activity. In the El Niño map, the region of tornado activity shrinks, becoming more clustered in the southern U.S. This is likely due to the impact of ENSO on the jet stream, where El Niño shifts the jet stream southward, making the Southern region wetter and colder, thus reducing unstable conditions in the Central Midwest that were previously caused by the warmer Southern region. Tornadoes still form because moist air is still supplied by the Gulf of Mexico and wind shear from the jet stream, but tornado activity reduces and the active region shrinks.
+
+In contrast, La Niña expands the region of tornado activity. Similar to El Niño, the jet stream shifts, but this time poleward, causing a larger area of warm and wet conditions, increasing favorable conditions for tornado formation.
 
 ## How are the tornadoes themselves affected? Does their strength and size dependent on the phase of ENSO?
 
-# Conclusion
+```{r}
+masterData |> mutate(DAMAGE_PROPERTY = substr(DAMAGE_PROPERTY, nchar(DAMAGE_PROPERTY), nchar(DAMAGE_PROPERTY))
+) |> distinct(DAMAGE_PROPERTY)
+
+masterData <- masterData |>
+  mutate(DAMAGE_PROPERTY = case_when(
+  substr(DAMAGE_PROPERTY, nchar(DAMAGE_PROPERTY), nchar(DAMAGE_PROPERTY)) == "K" ~ parse_number(DAMAGE_PROPERTY) * 10^3,
+  substr(DAMAGE_PROPERTY, nchar(DAMAGE_PROPERTY), nchar(DAMAGE_PROPERTY)) == "M" ~ parse_number(DAMAGE_PROPERTY) * 10^6,
+  substr(DAMAGE_PROPERTY, nchar(DAMAGE_PROPERTY), nchar(DAMAGE_PROPERTY)) == "B" ~ parse_number(DAMAGE_PROPERTY) * 10^9,
+  is.na(DAMAGE_PROPERTY) ~ 0))
+```
+
+```{r}
+masterData |> 
+  filter(DAMAGE_PROPERTY > 0) |>
+  ggplot(aes(x = factor(PHASE), y = log(DAMAGE_PROPERTY))) +
+  geom_boxplot() +
+  stat_summary(fun = mean, geom = "point", shape = 20, size = 3, color = "red")
+```
+
+This graph displays the distribution of the logarithm transformed property damage for each ENSO phase, with the red dots representing the average damage. The purpose of this visualization was to explore whether ENSO phase influences tornado related property damage.
+
+The box plots for each phase are very similar, showing only minor differences in interquartile range and number of outliers. The El Nino and Neutral phase have near identical distribution and average, with the Neutral ophase having more extreme high end outliers. La Nina, however, was noticeable in having an increased median and average, along with an upward shifted range. While property damage is not the best measurement in tornado strength, since other factors also play a role, the data indicates that ENSO has little to no impact on tornado damage.
+
+```{r}
+tornado_ranks <- masterData |> group_by(PHASE, TOR_F_SCALE) |> summarise(count = n()) |>  ungroup()
+tornado_ranks |> 
+  filter(TOR_F_SCALE != "EFU") |>
+  ggplot(aes(x = TOR_F_SCALE, y = count, fill = PHASE)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~PHASE)
+```
+
+Another indicator of a tornado's strength is its EF rating, which is based on observed damage such as uprooted trees, destroyed roofs, and structural collapse. This bar chart displays the distribution of tornado ratings since 2007 for each ENSO phase. Tornado's with a rating of EFU (Enhanced Fujita Unknown) have been excluded, because there was insufficient information to determine its rating.
+
+All three ENSO phases display right skewed distribition with EF0 and EF1 tornadoes being the most common. The shapes of the distributions are very similar to each other, however, La Nina stands out with relatively more stronger tornadoes compared to El Nino and Neutral. The shapes of El Nino and Neutral are nearly identical, but El Nino is more likely to have EF0 and EF1 tornadoes. Unlike property damage where ENSO had little to no influence, the EF ratings show that La Nina is more likely to have stronger tornadoes while El Nino is more likely to have weaker tornadoes.
+
+```{r}
+masterData |> ggplot(aes(x = TOR_LENGTH, y = TOR_WIDTH, color = PHASE)) +
+  geom_point()+
+  facet_wrap(~PHASE)
+
+```
+
+The final graph is a scatter plot displaying tornado width on the y-axis and path length on the x-axis, with each point representing an individual tornado observation. A pattern emerges across all three phases where path length shows little variability while tornado width shows greater variability. This likely reflects that certain local conditions have greater impact on tornado size causing greater variability. In contrast, tornado lifespan is reliant on certain conditions being met regardless of strength or size leading to less variability. Since the shape of distribution for all three phases are nearly identical, it suggests that ENSO does not have a meaningful impact on tornado size and path length.
+
+------------------------------------------------------------------------
+
+## Conclusion
 
 we did... we found...
