@@ -312,35 +312,43 @@ str(masterData)
 
 #### Variables
 
-- BEGIN_YEARMONTH: num
+- BEGIN_YEARMONTH (num): The year and month that the event began
 
-- BEGIN_DAY : num \$
+- BEGIN_DAY (num): The day of the month that the event began
 
-- STATE : chr \$ YEAR : num \$
+- STATE (chr): The state name where the event occurred
 
-- MONTH_NAME : Factor \$
+- YEAR (num): The year this event occured
 
-- EVENT_TYPE : chr \$
+- MONTH_NAME (Factor): The month this event occured
 
-- BEGIN_DATE_TIME: chr \$
+- EVENT_TYPE (chr): The classification of the observed storm (Tornado)
 
-- END_DATE_TIME : chr \$
+- BEGIN_DATE_TIME (chr): The date and time the event began
 
-- DAMAGE_PROPERTY: chr \$
+- END_DATE_TIME (chr): The date and time the event ended
 
-- TOR_F_SCALE : chr \$
+- DAMAGE_PROPERTY (chr): The estimated amount of damage to property
 
-- TOR_LENGTH : num \$
+- TOR_F_SCALE (chr): Strength of the tornado based on the amount and
+  type of damage caused by the tornado
 
-- TOR_WIDTH : num \$
+- TOR_LENGTH (num): Path length of the tornado when on the ground (in
+  miles to the tenth)
 
-- BEGIN_LAT : num \$
+- TOR_WIDTH (num): Width of the tornado or tornado segment while on the
+  ground (in whole yards)
 
-- BEGIN_LON : num \$
+- BEGIN_LAT (num): The latitude in decimal degrees of the begin point of
+  the event or damage path.
 
-- nino3.4 : num \$
+- BEGIN_LON (num): The longitude in decimal degrees of the begin point
+  of the event or damage path.
 
-- PHASE
+- nino3.4 (num): The variation in sea surface temperature (SST) from
+  long term average
+
+- PHASE (Factor): The current ENSO phase
 
 ## Results
 
