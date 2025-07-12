@@ -5,7 +5,7 @@ Vaughn Hendrix
 
 ------------------------------------------------------------------------
 
-## Introduction
+### Introduction
 
 The goal of this project is to explore the relationship between El Niño
 Southern Oscillation (ENSO) and tornado formation in the United States.
@@ -36,9 +36,7 @@ various questions:
 
 ------------------------------------------------------------------------
 
-## Data
-
-#### Data Sources
+### Data
 
 My first data set comes from the NOAA Physical Sciences Laboratory:
 ERSSTv5 Niño 3.4 Index, available at
@@ -65,8 +63,6 @@ for all data sets. This allowed me to see changes over time while also
 being manageable. Additionally, 2007 marks the introduction of the
 Enhanced Fujita (EF) scale, ensuring consistency in tornado ratings
 throughout the data set.
-
-#### Data Cleaning
 
 First, I imported the data through the CSV covering storm details from
 2007 to 2024.
@@ -292,95 +288,61 @@ masterData <- masterData |> left_join(nino3.4 |> select(nino3.4, BEGIN_YEARMONTH
 
 ------------------------------------------------------------------------
 
-## Results
+### Results
 
 #### Is there a trend in the appearance of tornadoes over the years? Does the phase of ENSO play a role in how many tornadoes are forming?
 
 ``` r
-trend <- masterData |> group_by(YEAR) |> summarise(count = n()) |> ungroup()
-trend |> ggplot(aes(x = YEAR, y = count)) +
-  geom_line() +
-  scale_x_continuous(breaks = unique(masterData$YEAR), minor_breaks = NULL)
-```
-
-![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
-
-This graph displays a time series of tornado occurrences since 2007. A
-semi-periodic pattern emerges, where peaks are typically followed by
-troughs, with intervals of roughly two to three years between peaks.
-Since 2018, tornado activity has generally trended upward, culminating
-in a significant spike during 2023–2024. While the overall trend
-indicates increasing activity, the semi-periodic structure suggests a
-potential decline in the near future.
-
-``` r
-masterData |> 
-  ggplot(aes(x = BEGIN_DAY)) + 
+masterData |> ggplot(aes(x = BEGIN_DAY)) + 
   geom_bar() +
   facet_wrap(~MONTH_NAME)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
-
-This graph displays the daily tornado count throughout the year. It
-shows that tornado activity typically peaks between April and June. In
-addition to the semi-periodic trend observed across multiple years,
-tornado activity within a single year also follows a seasonal pattern in
-spring and early summer tornado spikes, then declining in the latter
-half of the year. This seasonal peak could be the result from a
-southward dip in the jet streak providing strong wind shear along with
-increasing day light exposure and surface heating creating good
-environments of instability.
-
-``` r
-masterData |> 
-  filter(PHASE == "El Nino") |>
-  ggplot(aes(x = BEGIN_DAY, fill = PHASE)) + 
-  geom_bar() +
-  facet_wrap(~MONTH_NAME) +
-  scale_fill_manual(values = c("El Nino" = "red"))
-```
-
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
-
-This graph displays the daily tornado count throughout the year, limited
-to the El Nino phase. Tornado activity shows a sharp peak in April and
-May, with relatively little activity before or after. Compared to the
-overall seasonal tornado peak from April to June, El Niño years exhibit
-a noticeably shorter and more concentrated peak period.
-
-``` r
-masterData |> 
-  filter(PHASE == "La Nina") |>
-  ggplot(aes(x = BEGIN_DAY, fill = PHASE)) + 
-  geom_bar() +
-  facet_wrap(~MONTH_NAME) +
-  scale_fill_manual(values = c("La Nina" = "blue"))
-```
-
-![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
-
-This graph displays the daily tornado count throughout the year, limited
-to the La Niña phase. Tornado activity shows an extended peak from March
-through June, with relatively little activity before or after. Compared
-to the overall tornado season, La Niña years exhibit a longer and more
-active tornado period.
+![](project_report_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
 masterData |> 
   filter(PHASE == "Neutral") |>
-  ggplot(aes(x = BEGIN_DAY, fill = PHASE)) + 
+  ggplot(aes(x = MONTH_NAME)) + 
   geom_bar() +
-  facet_wrap(~MONTH_NAME) +
-  scale_fill_manual(values = c("Neutral" = "grey"))
+  facet_wrap(~YEAR, ncol = 6) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 5))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](project_report_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
-This graph displays the daily tornado count throughout the year, limited
-to the Neutral phase. Similar to La Niña years, tornado activity during
-the Neutral phase extends from April through July, indicating a longer
-and more sustained tornado season.
+``` r
+masterData |> 
+  filter(PHASE == "El Nino") |>
+  ggplot(aes(x = MONTH_NAME)) + 
+  geom_bar() +
+  facet_wrap(~YEAR, ncol = 6) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 5))
+```
+
+![](project_report_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+masterData |> 
+  filter(PHASE == "La Nina") |>
+  ggplot(aes(x = MONTH_NAME)) + 
+  geom_bar() +
+  facet_wrap(~YEAR, ncol = 6) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 5))
+```
+
+![](project_report_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+masterData |> 
+  group_by(YEAR) |> 
+  summarise(count = n()) |> 
+  ggplot(aes(x = YEAR, y = count)) + 
+  geom_line() + 
+  scale_x_continuous(breaks = unique(masterData$YEAR), minor_breaks = NULL)
+```
+
+![](project_report_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 nino3.4 |> ggplot(aes(x = Date, y = nino3.4)) + 
@@ -391,7 +353,7 @@ nino3.4 |> ggplot(aes(x = Date, y = nino3.4)) +
            alpha = 0.2, fill = "red")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](project_report_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 ``` r
 masterData |> 
@@ -405,12 +367,35 @@ masterData |>
     ## `summarise()` has grouped output by 'YEAR'. You can override using the
     ## `.groups` argument.
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](project_report_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
+``` r
+masterData |> 
+  mutate(BEGIN_DAY = as.integer(BEGIN_DAY), PHASE = factor(PHASE)) |> 
+  ggplot(aes(x = BEGIN_DAY, fill = PHASE)) + 
+  geom_bar(position = position_dodge(preserve = "single")) +
+  facet_wrap(~MONTH_NAME, ncol = 4)
+```
 
+![](project_report_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
-    ``` r
-    str(masterData)
+``` r
+masterData |> 
+  group_by(YEAR, PHASE) |> 
+  summarise(count = n()) |> 
+  ggplot(aes(x = YEAR, y = count, group = PHASE, color = PHASE)) +
+  geom_line() +
+  scale_color_manual(values = c("El Nino" = "red", "La Nina" = "blue", "Neutral" = "gray"))
+```
+
+    ## `summarise()` has grouped output by 'YEAR'. You can override using the
+    ## `.groups` argument.
+
+![](project_report_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+
+``` r
+str(masterData)
+```
 
     ## tibble [26,050 × 16] (S3: tbl_df/tbl/data.frame)
     ##  $ BEGIN_YEARMONTH: num [1:26050] 200706 200704 200704 200710 200705 ...
@@ -448,7 +433,7 @@ tornado_map |>
   facet_wrap(~PHASE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](project_report_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 The following graph is a choropleth map of the United States, where the
 shade of each state represents the number of tornado observations.
@@ -505,7 +490,7 @@ masterData |>
   stat_summary(fun = mean, geom = "point", shape = 20, size = 3, color = "red")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](project_report_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 This graph displays the distribution of the logarithm transformed
 property damage for each ENSO phase, with the red dots representing the
@@ -536,7 +521,7 @@ tornado_ranks |>
   facet_wrap(~PHASE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](project_report_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 Another indicator of a tornado’s strength is its EF rating, which is
 based on observed damage such as uprooted trees, destroyed roofs, and
@@ -561,7 +546,7 @@ masterData |> ggplot(aes(x = TOR_LENGTH, y = TOR_WIDTH, color = PHASE)) +
   facet_wrap(~PHASE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](project_report_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 The final graph is a scatter plot displaying tornado width on the y-axis
 and path length on the x-axis, with each point representing an
