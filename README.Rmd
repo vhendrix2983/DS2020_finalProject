@@ -187,10 +187,6 @@ Finally, I used the `left_join()` function to merge the `masterData` data set wi
 masterData <- masterData |> left_join(nino3.4 |> select(nino3.4, BEGIN_YEARMONTH, PHASE), by = "BEGIN_YEARMONTH")
 ```
 
-```{r}
-str(masterData)
-```
-
 #### Variables
 
 -   BEGIN_YEARMONTH (num): The year and month that the event began
@@ -334,7 +330,8 @@ tornado_ranks |>
   filter(TOR_F_SCALE != "EFU") |>
   ggplot(aes(x = TOR_F_SCALE, y = count, fill = PHASE)) +
   geom_bar(stat = "identity") +
-  facet_wrap(~PHASE)
+  facet_wrap(~PHASE) +
+  scale_fill_manual(values = c("El Nino" = "red", "La Nina" = "blue", "Neutral" = "grey"))
 ```
 
 Another indicator of a tornado's strength is its EF rating, which is based on observed damage such as uprooted trees, destroyed roofs, etc. This bar chart displays the distribution of tornado ratings since 2007 for each ENSO phase. Tornadoes with a rating of EFU (Enhanced Fujita Unknown) have been excluded because there was insufficient information to determine their rating.
@@ -344,8 +341,8 @@ All three ENSO phases display right-skewed distributions, with EF0 and EF1 torna
 ```{r}
 masterData |> ggplot(aes(x = TOR_LENGTH, y = TOR_WIDTH, color = PHASE)) +
   geom_point()+
-  facet_wrap(~PHASE)
-
+  facet_wrap(~PHASE) +
+  scale_color_manual(values = c("El Nino" = "red", "La Nina" = "blue", "Neutral" = "grey"))
 ```
 
 The final graph is a scatter plot displaying tornado width on the y-axis and path length on the x-axis, with each point representing an individual tornado observation. A pattern emerges across all three phases where path length shows little variability while tornado width shows greater variability. This likely reflects that certain local conditions have a greater impact on tornado size, causing greater variability. In contrast, tornado lifespan relies on certain conditions being met, regardless of strength or size, leading to less variability. Since the distribution shape for all three phases is nearly identical, it suggests that ENSO does not have a meaningful impact on tornado size and path length.
