@@ -185,7 +185,43 @@ Finally, I used the `left_join()` function to merge the `masterData` data set wi
 masterData <- masterData |> left_join(nino3.4 |> select(nino3.4, BEGIN_YEARMONTH, PHASE), by = "BEGIN_YEARMONTH")
 ```
 
-------------------------------------------------------------------------
+```{r}
+str(masterData)
+```
+
+#### Variables
+
+-   BEGIN_YEARMONTH (num): The year and month that the event began
+
+-   BEGIN_DAY (num): The day of the month that the event began
+
+-   STATE (chr): The state name where the event occurred
+
+-   YEAR (num): The year this event occured
+
+-   MONTH_NAME (Factor): The month this event occured
+
+-   EVENT_TYPE (chr): The classification of the observed storm (Tornado)
+
+-   BEGIN_DATE_TIME (chr): The date and time the event began
+
+-   END_DATE_TIME (chr): The date and time the event ended
+
+-   DAMAGE_PROPERTY (chr): The estimated amount of damage to property
+
+-   TOR_F_SCALE (chr): Strength of the tornado based on the amount and type of damage caused by the tornado
+
+-   TOR_LENGTH (num): Path length of the tornado when on the ground (in miles to the tenth)
+
+-   TOR_WIDTH (num): Width of the tornado or tornado segment while on the ground (in whole yards)
+
+-   BEGIN_LAT (num): The latitude in decimal degrees of the begin point of the event or damage path.
+
+-   BEGIN_LON (num): The longitude in decimal degrees of the begin point of the event or damage path.
+
+-   nino3.4 (num): The variation in sea surface temperature (SST) from long term average
+
+-   PHASE (Factor): The current ENSO phase
 
 ## Results
 

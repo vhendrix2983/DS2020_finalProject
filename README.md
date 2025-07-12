@@ -288,7 +288,59 @@ included the corresponding ENSO value and phase.
 masterData <- masterData |> left_join(nino3.4 |> select(nino3.4, BEGIN_YEARMONTH, PHASE), by = "BEGIN_YEARMONTH")
 ```
 
-------------------------------------------------------------------------
+``` r
+str(masterData)
+```
+
+    ## tibble [26,050 × 16] (S3: tbl_df/tbl/data.frame)
+    ##  $ BEGIN_YEARMONTH: num [1:26050] 200706 200704 200704 200710 200705 ...
+    ##  $ BEGIN_DAY      : num [1:26050] 1 15 15 22 15 24 13 13 4 13 ...
+    ##  $ STATE          : chr [1:26050] "FLORIDA" "FLORIDA" "FLORIDA" "MISSISSIPPI" ...
+    ##  $ YEAR           : num [1:26050] 2007 2007 2007 2007 2007 ...
+    ##  $ MONTH_NAME     : Factor w/ 12 levels "January","February",..: 6 4 4 10 5 6 2 2 6 2 ...
+    ##  $ EVENT_TYPE     : chr [1:26050] "Tornado" "Tornado" "Tornado" "Tornado" ...
+    ##  $ BEGIN_DATE_TIME: chr [1:26050] "01-JUN-07 11:55:00" "15-APR-07 06:15:00" "15-APR-07 09:10:00" "22-OCT-07 16:54:00" ...
+    ##  $ END_DATE_TIME  : chr [1:26050] "01-JUN-07 11:56:00" "15-APR-07 06:15:00" "15-APR-07 09:10:00" "22-OCT-07 16:59:00" ...
+    ##  $ DAMAGE_PROPERTY: chr [1:26050] "20.00K" NA NA "180.00K" ...
+    ##  $ TOR_F_SCALE    : chr [1:26050] "EF0" "EF2" "EF1" "EF1" ...
+    ##  $ TOR_LENGTH     : num [1:26050] 0.55 1.5 0.2 3.47 0.15 ...
+    ##  $ TOR_WIDTH      : num [1:26050] 30 300 50 150 30 30 200 60 200 40 ...
+    ##  $ BEGIN_LAT      : num [1:26050] 24.7 30.5 29.7 33.4 40 ...
+    ##  $ BEGIN_LON      : num [1:26050] -81.5 -82.2 -81.2 -90.5 -83.8 ...
+    ##  $ nino3.4        : num [1:26050] -0.35 -0.32 -0.32 -1.39 -0.47 -0.35 0.13 0.13 -0.35 0.13 ...
+    ##  $ PHASE          : Factor w/ 3 levels "El Nino","La Nina",..: 3 3 3 2 3 3 3 3 3 3 ...
+
+#### Variables
+
+- BEGIN_YEARMONTH: num
+
+- BEGIN_DAY : num \$
+
+- STATE : chr \$ YEAR : num \$
+
+- MONTH_NAME : Factor \$
+
+- EVENT_TYPE : chr \$
+
+- BEGIN_DATE_TIME: chr \$
+
+- END_DATE_TIME : chr \$
+
+- DAMAGE_PROPERTY: chr \$
+
+- TOR_F_SCALE : chr \$
+
+- TOR_LENGTH : num \$
+
+- TOR_WIDTH : num \$
+
+- BEGIN_LAT : num \$
+
+- BEGIN_LON : num \$
+
+- nino3.4 : num \$
+
+- PHASE
 
 ## Results
 
@@ -301,7 +353,7 @@ trend |> ggplot(aes(x = YEAR, y = count)) +
   scale_x_continuous(breaks = unique(masterData$YEAR), minor_breaks = NULL)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 This time series shows the number of tornadoes since 2007. This graph
 shows a semi-periodic pattern, where it is common for a high to be
@@ -316,7 +368,7 @@ masterData |>
   facet_wrap(~MONTH_NAME)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 This graph displays the daily tornado count throughout the year. It
 shows that tornado activity typically peaks between April and June. In
@@ -336,7 +388,7 @@ masterData |>
   scale_fill_manual(values = c("El Nino" = "red"))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 This graph displays the daily tornado count throughout the year, limited
 to the El Nino phase, showing that tornado activity peaks in April and
@@ -353,7 +405,7 @@ masterData |>
   scale_fill_manual(values = c("La Nina" = "blue"))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 This graph displays the daily tornado count throughout the year, limited
 to the La Nina phase, showing that tornado activity shows an extended
@@ -370,7 +422,7 @@ masterData |>
   scale_fill_manual(values = c("Neutral" = "grey"))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 This graph displays the daily tornado count throughout the year, limited
 to the Neutral phase. Similar to La Nina years, tornado activity during
@@ -395,7 +447,7 @@ tornado_map |>
   facet_wrap(~PHASE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 The following choropleth map of the United States shows the distribution
 of tornado activity, where the shade of the state represents the number
@@ -448,7 +500,7 @@ masterData |>
   stat_summary(fun = mean, geom = "point", shape = 20, size = 3, color = "red")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 This graph displays the distribution of the logarithm-transformed
 property damage for each ENSO phase, with the red dots representing the
@@ -479,7 +531,7 @@ tornado_ranks |>
   facet_wrap(~PHASE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 Another indicator of a tornado’s strength is its EF rating, which is
 based on observed damage such as uprooted trees, destroyed roofs, etc.
@@ -503,7 +555,7 @@ masterData |> ggplot(aes(x = TOR_LENGTH, y = TOR_WIDTH, color = PHASE)) +
   facet_wrap(~PHASE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 The final graph is a scatter plot displaying tornado width on the y-axis
 and path length on the x-axis, with each point representing an
