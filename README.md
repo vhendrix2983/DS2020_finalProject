@@ -7,8 +7,16 @@ Vaughn Hendrix
 
 ## Introduction
 
-The goal of this project is to explore the relationship between El Nino
-Southern Oscillation (ENSO) and tornado formation in the United States.
+This project aims to explore the relationship between El Nino Southern
+Oscillation (ENSO) and tornado formation in the United States. Last
+semester, I took a class about ocean atmospheric climatology, which
+interested me. As of recently, there have been many cases of tornadoes,
+a notable one was the EF3 tornado that was huge in North Dakota, along
+with some by where I live, making me wonder if there could be a
+correlation between the two. This analysis shows whether there could be
+a relationship between a global weather phenomenon and tornadoes, a
+recurring event in the Midwest.
+
 ENSO is a global weather phenomenon located in the tropical pacific. It
 is a recurring pattern in which warmer sea surface temperatures and
 lower pressure shift between the east and west tropical pacific which
